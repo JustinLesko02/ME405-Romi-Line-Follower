@@ -38,17 +38,19 @@ S_BUMP_LINE_FOUND = 14
 S_BLACK_LINE = 15
 S_TURN_180 = 16
 S_GO_STRAIGHT = 17
+S_BUMP_WAIT = 20
+S_RTH_NUDGE = 21
 
 Turn_Radius = 6 # inches
-Velocity = 12
+Velocity = 20
 print(Velocity)
 Cycle_Time = Turn_Radius/(Velocity/(2*math.pi)) #seconds
 print(Cycle_Time)
 Track_Width = 137.5 #mm
 Wheel_Radius = 70 #mm
-impact_radius = 10
+impact_radius = 11
 turn_angle = 90
-reset_angle = 35
+reset_angle = 43
 # Variables for obstacle avoidance
 reverse_distance = 1000   # Encoder ticks to go backward
 circle_time = 3000        # ms to drive in a circle
@@ -124,6 +126,7 @@ def motor_update_A(shares):
                     motor_A.set_duty(0)
                     print('motor a off')
                     motor_ticks = ticks_ms()
+                    wait_time = 0
                     
                 elif black_line_flag.get() == 2:
                     t1state = S4
@@ -131,20 +134,30 @@ def motor_update_A(shares):
                     motor_ticks = ticks_ms()
                     motor_run_flag.put(S_BLACK_LINE)
                     print("motor flag changed:", motor_run_flag.get())
+                    black_line_buffer = 50
 
                     
             elif t1state == S3: #Object Detect
                 if motor_run_flag.get() == S_BUMP_STOP:
                     controller_A.target_speed = (2*Velocity*25.4/(Wheel_Radius*2*math.pi))*1440
                     controller_A.update()
-                    if abs(ticks_diff(motor_ticks, ticks_ms()))>(1000*10/Velocity):
+                    if abs(ticks_diff(motor_ticks, ticks_ms()))>(1000*7/Velocity):
                         motor_run_flag.put(S_BUMP_TURN)
                         print("motor flag changed: bump turn")
                 elif motor_run_flag.get() == S_BUMP_TURN:
                     controller_A.target_speed = -heading_error.get()*(0.0125*Velocity*25.4/(Wheel_Radius*2*math.pi))*1440
                     controller_A.update()
+                elif motor_run_flag.get() == S_BUMP_WAIT:
+                    motor_A.set_duty(0)
+                    if wait_time == 0:
+                        wait_time= 10
+                        motor_run_flag.put(S_BUMP_CIRCLE)
+                        print("motor flag changed:", motor_run_flag.get())
+                    else:
+                        wait_time-=1
+                    
                 elif motor_run_flag.get() == S_BUMP_CIRCLE:
-                    controller_A.target_speed = -(Velocity*25.4/(Wheel_Radius*2*math.pi))*(1-(Track_Width/(2*impact_radius*25.4)))*1440
+                    controller_A.target_speed = -2*(Velocity*25.4/(Wheel_Radius*2*math.pi))*(1-(Track_Width/(2*impact_radius*25.4)))*1440
                     controller_A.update()
                 else:
                     t1state = S2
@@ -156,24 +169,33 @@ def motor_update_A(shares):
                 if motor_run_flag.get() == S_BLACK_LINE:
                     controller_A.target_speed = -(Velocity*25.4/(Wheel_Radius*2*math.pi))*1440
                     controller_A.update()
-                    if abs(ticks_diff(motor_ticks, ticks_ms()))>(1000*15/Velocity):
+                    if abs(ticks_diff(motor_ticks, ticks_ms()))>(1000*10/Velocity):
                         motor_run_flag.put(S_TURN_180)
                         print("motor flag changed:", motor_run_flag.get())
                 elif motor_run_flag.get() == S_TURN_180:
-                    controller_A.target_speed = -heading_error.get()*(0.0125*Velocity*25.4/(Wheel_Radius*2*math.pi))*1440
+                    controller_A.target_speed = -heading_error.get()*(0.02*Velocity*25.4/(Wheel_Radius*2*math.pi))*1440
                     controller_A.update()
                 elif motor_run_flag.get() == S_GO_STRAIGHT:
+                    controller_A.target_speed = -(Velocity*25.4/(Wheel_Radius*2*math.pi))*(1+(heading_error.get()*0.2*Track_Width/(2*impact_radius*25.4)))*1440
+                    controller_A.update()
+                    if black_line_buffer != 0:
+                        black_line_buffer-=1
+                    elif black_line_flag.get() == 2:
+                        motor_run_flag.put(S_RTH_NUDGE)
+                        black_line_flag.put(0)
+                        motor_ticks = ticks_ms()
+                    else:
+                        black_line_flag.put(1)
+                elif motor_run_flag.get() == S_RTH_NUDGE:
                     controller_A.target_speed = -(Velocity*25.4/(Wheel_Radius*2*math.pi))*1440
                     controller_A.update()
-                    if black_line_flag.get() == 2:
+                    if abs(ticks_diff(motor_ticks, ticks_ms()))>(1000*15/Velocity):
                         motor_run_flag.put(0)
                         print("motor flag changed:", motor_run_flag.get())
-                        motor_A.set_duty(0)
                         t1state = S1
+                        motor_A.set_duty(0)
                         button_ok.put(1)
                         controller_A.ticks = ticks_us()
-                        black_line_flag.put(0)
-                    
             else:
             # If the state isnt 0, 1, or 2 we have an invalid state
                 raise ValueError("Invalid state")
@@ -244,8 +266,10 @@ def motor_update_B(shares):
                 elif motor_run_flag.get() == S_BUMP_TURN:
                     controller_B.target_speed = heading_error.get()*(0.0125*Velocity*25.4/(Wheel_Radius*2*math.pi))*1440
                     controller_B.update()
+                elif motor_run_flag.get() == S_BUMP_WAIT:
+                    motor_B.set_duty(0)
                 elif motor_run_flag.get() == S_BUMP_CIRCLE:
-                    controller_B.target_speed = -(Velocity*25.4/(Wheel_Radius*2*math.pi))*(1+(Track_Width/(2*impact_radius*25.4)))*1440
+                    controller_B.target_speed = -2*(Velocity*25.4/(Wheel_Radius*2*math.pi))*(1+(Track_Width/(2*impact_radius*25.4)))*1440
                     controller_B.update()
                 else:
                     t2state = S2
@@ -257,16 +281,19 @@ def motor_update_B(shares):
                     controller_B.update()
                 elif motor_run_flag.get() == S_TURN_180:
                     
-                    controller_B.target_speed = heading_error.get()*(0.0125*Velocity*25.4/(Wheel_Radius*2*math.pi))*1440
+                    controller_B.target_speed = heading_error.get()*(0.02*Velocity*25.4/(Wheel_Radius*2*math.pi))*1440
                     controller_B.update()
+                    
                 elif motor_run_flag.get() == S_GO_STRAIGHT:
+                    controller_B.target_speed = -(Velocity*25.4/(Wheel_Radius*2*math.pi))*(1-(heading_error.get()*0.2*Track_Width/(2*impact_radius*25.4)))*1440
+                    controller_B.update()
+                elif motor_run_flag.get() == S_RTH_NUDGE:
                     controller_B.target_speed = -(Velocity*25.4/(Wheel_Radius*2*math.pi))*1440
                     controller_B.update()
                 else:
                     t2state = S1
                     motor_B.set_duty(0)
-                    print('motor b off,')
-                    
+                    controller_B.ticks = ticks_us()
             else:
             # If the state isnt 0, 1, or 2 we have an invalid state
                 raise ValueError("Invalid state")
@@ -337,7 +364,7 @@ def IMU_update(shares):
                 elif motor_run_flag.get() == S_BUMP_TURN:
                     heading_error.put(IMU_heading_start+turn_angle-(current_heading+IMU_heading_turn_offset))
                     if (IMU_heading_start+turn_angle+3) >= (current_heading+IMU_heading_turn_offset) >= (IMU_heading_start+turn_angle-3) :
-                        motor_run_flag.put(S_BUMP_CIRCLE)
+                        motor_run_flag.put(S_BUMP_WAIT)
                         print("motor flag changed:", motor_run_flag.get())
                 elif motor_run_flag.get() == S_BUMP_CIRCLE:
                     heading_error.put(IMU_heading_start-reset_angle-(current_heading+IMU_heading_reset_offset))
@@ -350,7 +377,9 @@ def IMU_update(shares):
                     if (IMU_heading_start-3) <= current_heading <= (IMU_heading_start+3):
                         motor_run_flag.put(S_GO_STRAIGHT)
                         print("motor flag changed:", motor_run_flag.get())
-                        black_line_flag.put(1)
+                        black_line_flag.put(0)
+                elif motor_run_flag.get() == S_GO_STRAIGHT:
+                    heading_error.put(IMU_heading_start-(current_heading))
                 else: 
                     gyroZ.put(int(IMU.read_velocity())) #Read Gyro
                 #print(IMU.read_euler_angles())
@@ -408,7 +437,7 @@ def line_sensor_update(shares):
                     t5state = S2
             elif t5state == S2:
                 total, centroid = (my_linesensor.read_lineArray())
-                if total>5 and black_line_flag.get():
+                if total>5 and (black_line_flag.get() == 1):
                     print("Black Line!")
                     black_line_flag.put(2)
                 if centroid == 7:
@@ -427,6 +456,7 @@ def line_sensor_update(shares):
         yield 0
 
 def button_pressed_handler(the_pin):
+    print(the_pin)
     if the_pin == 13:
         motor_run_flag.put(1)
         print("button pressed")
@@ -448,15 +478,15 @@ if __name__ == "__main__":
     turn_signal = task_share.Share('f', thread_protect=False, name="turn_signal")
     button_ok = task_share.Share('h', thread_protect=False, name="button_ok")
     heading_error = task_share.Share('f', thread_protect=False, name="heading_error")
-    task1 = cotask.Task(motor_update_A, name="Task_1", priority=1, period=50,
+    task1 = cotask.Task(motor_update_A, name="Task_1", priority=1, period=25,
                         profile=True, trace=False, shares=(heading_error, black_line_flag, button_ok, turn_signal, deltaA, calibration_flag, motor_run_flag))
-    task2 = cotask.Task(motor_update_B, name="Task_2", priority=1, period=50,
+    task2 = cotask.Task(motor_update_B, name="Task_2", priority=1, period=25,
                         profile=True, trace=False, shares=(heading_error, button_ok, turn_signal, deltaB, calibration_flag, motor_run_flag))
-    task3 = cotask.Task(IMU_update, name="Task_3", priority=2, period=100,
+    task3 = cotask.Task(IMU_update, name="Task_3", priority=2, period=50,
                         profile=True, trace=False, shares=(heading_error, black_line_flag, heading, gyroZ, calibration_flag, motor_run_flag))
     task4 = cotask.Task(print_status, name="Task_4", priority=3, period=1000,
                         profile=True, trace=False, shares=(heading, gyroZ, deltaA, deltaB, calibration_flag, motor_run_flag))
-    task5 = cotask.Task(line_sensor_update, name="Task_5", priority=3, period=50,
+    task5 = cotask.Task(line_sensor_update, name="Task_5", priority=3, period=25,
                         profile=True, trace=False, shares=(black_line_flag, turn_signal, motor_run_flag))
 
     button_int = ExtInt(Pin.cpu.C13, ExtInt.IRQ_FALLING, Pin.PULL_NONE, button_pressed_handler)
