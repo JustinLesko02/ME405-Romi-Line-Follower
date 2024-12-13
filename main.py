@@ -194,7 +194,7 @@ def motor_update_A(shares):
                     controller_A.update()
                 elif motor_run_flag.get() == S_GO_STRAIGHT: # ROMI IS NOW GOING STRAIGHT BACK TO START BOX
                     # MOVE IN A STRAIGHT LINE WITH CLOSED LOOP HEADING CONTROL TO ENSURE IT IS MOVING STRAIGHT
-                    controller_A.target_speed = -(Set_Speed)*(1+(heading_error.get()*0.2*Set_Turn))
+                    controller_A.target_speed = -(Set_Speed)*(1+(heading_error.get()*Return_to_home_heading_gain*Set_Turn))
                     controller_A.update()
                     # TICK DOWN THE BLACK LINE BUFFER UNTIL IT IS 0, AND THEN TEST IF THE LINE SENSOR DETECTS A FULL BLACK LINE. 
                     if black_line_buffer != 0:
@@ -253,7 +253,7 @@ def motor_update_B(shares):
                encoder_B = Encoder(timer_num=3, pinA=Pin.cpu.B4, pinB=Pin.cpu.B5)
                
                #Setup PI-control object using motor and encoder objects - used for updating speed based off of desired speed, kp, and ki
-               controller_B = ProportionalIntegralController(motor_B, encoder_B, target_speed_B, kp=0.02, ki = 0.05)
+               controller_B = ProportionalIntegralController(motor_B, encoder_B, target_speed_B, kp = motor_kp, ki = motor_ki)
                
                #Next loop goes to state 1, standby
                t2state = S1
@@ -320,7 +320,7 @@ def motor_update_B(shares):
                 
                 elif motor_run_flag.get() == S_TURN_180:  # Robot needs to turn 180 degrees back to initial heading
                     # Turn back to the initial heading using closed-loop control for heading
-                    controller_B.target_speed = heading_error.get()*(0.02*Set_Speed)
+                    controller_B.target_speed = heading_error.get()*(Turn_180_heading_gain*Set_Speed)
                     controller_B.update()
                 
                 elif motor_run_flag.get() == S_GO_STRAIGHT:  # Move straight towards the home position
