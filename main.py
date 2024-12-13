@@ -29,6 +29,7 @@ S1 = 1
 S2 = 2
 S3 = 3
 S4 = 4
+
 # Obstacle handling states
 S_BUMP_STOP = 10
 S_BUMP_TURN = 11
@@ -41,31 +42,14 @@ S_GO_STRAIGHT = 17
 S_BUMP_WAIT = 20
 S_RTH_NUDGE = 21
 
+# Configurable Values
 Turn_Radius = 6 # inches
-Velocity = 20
-print(Velocity)
-Cycle_Time = Turn_Radius/(Velocity/(2*math.pi)) #seconds
-print(Cycle_Time)
+Velocity = 20 # inches/second
 Track_Width = 137.5 #mm
 Wheel_Radius = 70 #mm
-impact_radius = 11
-turn_angle = 90
-reset_angle = 43
-# Variables for obstacle avoidance
-reverse_distance = 1000   # Encoder ticks to go backward
-circle_time = 3000        # ms to drive in a circle
-line_reacquire_time = 3000 # ms after circle to re-enable line sensor
-
-# Shares
-
-
-# Bump sensors (active low)
-
-
-# Global variables for obstacle handling
-backward_start = 0
-circle_start = 0
-wait_line_start = 0
+impact_radius = 11 # Inches
+turn_angle = 90 # Degrees
+reset_angle = 43 # Degrees
 
 def motor_update_A(shares):
     t1state = 0
