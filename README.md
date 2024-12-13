@@ -3,6 +3,7 @@
 ## Overview
 This document 
 ## Mechanical Design
+The mechanical design for our line follower is a modified version of the 
 ## Electrical Design
 
 ## Code Structure
