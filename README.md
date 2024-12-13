@@ -4,7 +4,9 @@
 This document 
 ## Mechanical Design
 ## Electrical Design
+
 ## Code Structure
+
 ## Control Structures
 ## References
 
