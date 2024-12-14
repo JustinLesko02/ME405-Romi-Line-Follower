@@ -21,6 +21,7 @@ Each of the three sensors above was necessary to complete specific parts of the 
 - The IMU enables the robot to accurately turn around the obstacle and allows for the robot to return to the starting square using its initial heading. 
 - The bump switches allow the robot to detect an obstacle in its path
 - The IR Line Sensor allows the robot to follow the line.
+- 
 ### Wiring
 Our electrical design is fairly standard for ROMI line following robots. All of our components are plugged into a nucleo development board, which receives power from a ROMI PDB. Shown below is our wiring diagram.
 ![Untitled Diagram drawio](https://github.com/user-attachments/assets/a3b0814f-1b20-4740-8eae-b674b0f8a109)
@@ -34,11 +35,16 @@ In order to have enough space on the front of the robot for the line and bump se
 ### Bump Sensor and IR line sensor mount
 In order to secure all of the necessary sensors to the front, we 3D printed a mount. The bump sensors are secured using the holes closest to the edges on the side, while the IR light sensor is mounted using tape to the front rack of the mount. A picture of the CAD can be seen below. Initial designs for this mount did not include room for the IR light sensor due to pre-fabricated mounting holes in the ROMI itself, but we found that this caused the IR light sensor to be right between the wheels, causing the robot to have a much worse line following consistency. Therefore, mounting the IR light sensor to the front of this part is necessary for consistency and resolution in line reading. 
 ![image](https://github.com/user-attachments/assets/72b3a93d-ac85-48df-9d0d-ee1f16bd5c0a)
-
+### Overall Assembly
+Both of these mounts were screwed into the main chassis using M2.5 screws
 ## Code Structure
 
-## Control Structures and Calculations
-This section will describe the 
+## Control Structures
+This section will describe the control structures that are used in the robot.
+### Motor Control
+Each of our motors uses closed-loop proportional-integral control. 
+
+## Calculations
 ## References
 
 
