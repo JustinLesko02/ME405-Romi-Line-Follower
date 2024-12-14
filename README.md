@@ -3,8 +3,10 @@
 ## Overview
 This repository contains code and auxillary files relavent to run a line following robot. 
 ## Table of Contents
-
-
+1. Electrical Design
+2. Mechanical Design
+3. Code Structure
+4. Control Structures and Calculations
 ## Electrical Design
 This section describes the electrical design of our line following robot.
 ### Components
@@ -14,7 +16,7 @@ Besides the power distribution board and gearmotor-encoder pairs that came in th
 | IMU      | BNO055  | adafruit|
 | Bump switch| 3678  | Polulu | 
 | IR Line Sensor|3545| Polulu|
-In our CODE, 
+Each of the three sensors above was necessary to complete specific parts of the line-following track. The IMU enables the robot to accurately turn around the obstacle and allows for the robot to return to the starting square
 
 ### Wiring
 Our electrical design is fairly standard for ROMI line following robots. All of our components are plugged into a nucleo development board, which receives power from a ROMI PDB. Shown below is our wiring diagram.
