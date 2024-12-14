@@ -21,7 +21,6 @@ Each of the three sensors above was necessary to complete specific parts of the 
 - The IMU enables the robot to accurately turn around the obstacle and allows for the robot to return to the starting square using its initial heading. 
 - The bump switches allow the robot to detect an obstacle in its path
 - The IR Line Sensor allows the robot to follow the line.
-- 
 ### Wiring
 Our electrical design is fairly standard for ROMI line following robots. All of our components are plugged into a nucleo development board, which receives power from a ROMI PDB. Shown below is our wiring diagram.
 ![Untitled Diagram drawio](https://github.com/user-attachments/assets/a3b0814f-1b20-4740-8eae-b674b0f8a109)
@@ -36,7 +35,10 @@ In order to have enough space on the front of the robot for the line and bump se
 In order to secure all of the necessary sensors to the front, we 3D printed a mount. The bump sensors are secured using the holes closest to the edges on the side, while the IR light sensor is mounted using tape to the front rack of the mount. A picture of the CAD can be seen below. Initial designs for this mount did not include room for the IR light sensor due to pre-fabricated mounting holes in the ROMI itself, but we found that this caused the IR light sensor to be right between the wheels, causing the robot to have a much worse line following consistency. Therefore, mounting the IR light sensor to the front of this part is necessary for consistency and resolution in line reading. 
 ![image](https://github.com/user-attachments/assets/72b3a93d-ac85-48df-9d0d-ee1f16bd5c0a)
 ### Overall Assembly
-Both of these mounts were screwed into the main chassis using M2.5 screws
+Both of these mounts were screwed into the main chassis using M2.5 screws and bolts. Mutltiple pictures of our overall assembly in action can be seen below. 
+![IMG_4110](https://github.com/user-attachments/assets/24a3d4a6-d5e1-4f57-bb6a-67a0ccb37b00)![IMG_4114](https://github.com/user-attachments/assets/f7620406-b6aa-49b0-98e4-28ff58cb5f17)
+
+
 ## Code Structure
 
 ## Control Structures
@@ -46,6 +48,7 @@ Overall, the robot's operation is most closely linked to the chosen set point ve
 ### Motor Control
 In order to control the speed of each motor, closed-loop proportional-integral speed control is used . 
 <img width="749" alt="Screen Shot 2024-11-21 at 9 37 00 AM" src="https://github.com/user-attachments/assets/ef799270-c59c-4ba0-b219-5e157936887b" />
+
 This control scheme can be seen in controller.py, under the ProportionalIntegralController class. This class takes uses motor and encoder objects as attributes, calculates proportional and integral errors, and returns a saturation-checked signal for the motor PWM.
 Of note, all of the math that the class does is in encoder ticks, so target motor speeds are in units of encoder ticks per second. In addition, this causes ki and kp selected for the motors to be very small due to the high ratio of encoder ticks per revolution.
 ### Line Sensing Control
