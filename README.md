@@ -246,6 +246,9 @@ Heading control is also implimented in the portion of the line track where the r
 This section covers other calculations we performed to optimize our robot.
 ### Motor Speeds
 The most important calculations that we performed was finding the motor speed, in encoder counts per second, of each motor at a set velocity and turning radius. 
+![2024-12-13 22-18-1](https://github.com/user-attachments/assets/84c4b762-79a0-4105-8ba8-3cdaaec6d88d)
+This produced calculated motor speeds for each motor as seen below:
+$V_L = \dfrac{V_set}{r_wheel*\pi}*(1-\dfrac{W_track}{2*r_turn})*1440$
 ## References
 
 
