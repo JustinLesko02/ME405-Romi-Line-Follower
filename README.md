@@ -195,25 +195,26 @@ In this way, the code continuously processes sensor input, updates its internal 
 
 ### Motor update A task
 
-![image](https://github.com/user-attachments/assets/dd94fc40-edde-4075-998d-17431e0d95c9)
+![5luqg5x6](https://github.com/user-attachments/assets/4ebd3f28-d56a-4d59-a0e9-4d3278c03fdf)
 
 ### Motor update B task
 
-![image](https://github.com/user-attachments/assets/1a836dde-b664-4af8-a9ca-f83fc54159b8)
+![b5f893ff-5f46-494b-9ff0-09239f4832ae](https://github.com/user-attachments/assets/003e4cc2-bd9b-4887-b275-7536f51225eb)
 
-### IMU update A task
+### IMU update task
 
-![image](https://github.com/user-attachments/assets/0b9419b8-17c6-467a-ac8b-30df7900e75c)
+![image](https://github.com/user-attachments/assets/5e4b96f4-5924-4b97-a952-a80f5f0b0c2c)
 
 
 ### Print status task
 
-![image](https://github.com/user-attachments/assets/abfcaa3d-0847-4d9a-91fa-824883ef0cd1)
+![image](https://github.com/user-attachments/assets/83b9abd7-f42e-4a28-91c0-c7897b175ede)
 
 
 ### line sensor update task
 
-![image](https://github.com/user-attachments/assets/e7ae464c-1d6d-4dbd-85de-b476aa9d0ba5)
+![image](https://github.com/user-attachments/assets/76e978c1-2e87-4375-8035-7f5d0a2b91c2)
+
 
 
 
