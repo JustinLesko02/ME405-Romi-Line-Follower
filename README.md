@@ -193,6 +193,34 @@ In this way, the code continuously processes sensor input, updates its internal 
 
 ![image](https://github.com/user-attachments/assets/f6d21c75-c450-40c8-b682-94a9301b0f24)
 
+### Motor update A task
+
+![image](https://github.com/user-attachments/assets/dd94fc40-edde-4075-998d-17431e0d95c9)
+
+### Motor update B task
+
+![image](https://github.com/user-attachments/assets/1a836dde-b664-4af8-a9ca-f83fc54159b8)
+
+### IMU update A task
+
+![image](https://github.com/user-attachments/assets/0b9419b8-17c6-467a-ac8b-30df7900e75c)
+
+
+### Print status task
+
+![image](https://github.com/user-attachments/assets/abfcaa3d-0847-4d9a-91fa-824883ef0cd1)
+
+
+### line sensor update task
+
+![image](https://github.com/user-attachments/assets/e7ae464c-1d6d-4dbd-85de-b476aa9d0ba5)
+
+
+
+
+
+
+
 
 ## Control Structures
 This section will describe the control structures that are used in the robot.
