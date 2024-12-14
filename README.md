@@ -1,7 +1,7 @@
 # ME405 Romi Line Follower Project
 #### By Marcus Pietro and Justin Lesko
 ## Overview
-This repository contains code and auxillary files relavent to run a line following robot. All electrical and mechanical components as outline further on in this document are needed and proper tuning of variables is imperative for success. In order to run the code, download all of the necessary python files and run main.py. 
+This repository contains code and auxillary files relavent to run a line following robot. In order to run the code, download all of the necessary python files, upload them onto the nucleo board, and run main.py. 
 A video of our ROMI succesfully completing a trial is in the repository, and can also be seen at this link:
 https://youtube.com/shorts/0Pjfb0V2l2M
 ### Operation
