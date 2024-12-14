@@ -38,7 +38,7 @@ In order to have enough space on the front of the robot for the line and bump se
 In order to secure all of the necessary sensors to the front, we 3D printed a mount. The bump sensors are secured using the holes closest to the edges on the side, while the IR light sensor is mounted using tape to the front rack of the mount. A picture of the CAD can be seen below. Initial designs for this mount did not include room for the IR light sensor due to pre-fabricated mounting holes in the ROMI itself, but we found that this caused the IR light sensor to be right between the wheels, causing the robot to have a much worse line following consistency. Therefore, mounting the IR light sensor to the front of this part is necessary for consistency and resolution in line reading. 
 ![image](https://github.com/user-attachments/assets/72b3a93d-ac85-48df-9d0d-ee1f16bd5c0a)
 ### Overall Assembly
-Both of these mounts were screwed into the main chassis using M2.5 screws and bolts. Mutltiple pictures of our overall assembly in action can be seen below. 
+Both of these mounts were screwed into the main chassis using M2.5 screws and bolts. Multiple pictures of our overall assembly in action can be seen below. 
 
 <img width="300" src="https://github.com/user-attachments/assets/24a3d4a6-d5e1-4f57-bb6a-67a0ccb37b00" /><img width="275" src="https://github.com/user-attachments/assets/f7620406-b6aa-49b0-98e4-28ff58cb5f17" />
 
