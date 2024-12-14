@@ -206,13 +206,13 @@ This control scheme can be seen in controller.py, under the ProportionalIntegral
 Of note, all of the math that the class does is in encoder ticks, so target motor speeds are in units of encoder ticks per second. In addition, this causes ki and kp selected for the motors to be very small due to the high ratio of encoder ticks per revolution.
 ### Line Sensing Control
 In order to track lines, semi-closed loop control is implimented using the line sensor.
-If the robot is in its line-following mode, the centroid read by the IR light sensor is then used to manipulate the turning radius of the robot. For instance, if the line is in the middle of the sensor, then the centroid  will be 0, which then causes the turning radius to be 0. If the line is to the right of the sensor, then the centroid read will be positive, which will then cause the turning radius to be divided by the centroid value. Therefore, the further away from the center the line is, the smaller the turning radius is, causing the robot to correct harder if it is off course. The schematic below shows the control scheme flow. The feedback in this case is more subtle, operating between the centroid reading at the end and the turning radius.
+If the robot is in its line-following mode, the centroid read by the IR light sensor is then used to manipulate the turning radius of the robot. For instance, if the line is in the middle of the sensor, then the centroid  will be 0, which then causes the turning radius to be 0. If the line is to the right of the sensor, then the centroid read will be positive, which will then cause the turning radius to be divided by the centroid value. Therefore, the further away from the center the line is, the smaller the turning radius is, causing the robot to correct harder if it is off course. The block diagram below shows the control flow. The feedback in this case is more subtle, operating between the centroid reading at the end and the turning radius.
 ![image](https://github.com/user-attachments/assets/ecb52f0e-803f-4b98-b2fb-cf633d7e9dcf)
-
-
-
+For hardware different from ours, tuning of the gain for the centroid may be required - we were satisfied with a gain of 1, but further testing may produce different results for better line tracking.
 ### Heading control
-At multiple points in the line following track, the robot must move to a set angle, so closed-loop proportional heading control was selected. This closed-loop heading signal is then fed into the motor controller. In order to ensure that the robot behaves consistently, the gains for these controlled spins are set very low so that the inertia does not disrupt the following movement. 
+At multiple points in the line following track, the robot must move to a set angle, so closed-loop proportional heading control was selected. This closed-loop heading signal is then fed into the motor controller. In order to ensure that the robot behaves consistently, the gains for these controlled spins are set very low so that the inertia does not disrupt the following movement. The block diagram below shows the control flow.
+![image](https://github.com/user-attachments/assets/ad2f3d47-2d5d-42f3-9eab-8a5c4cfb7456)
+
 ## Calculations
 
 ## References
