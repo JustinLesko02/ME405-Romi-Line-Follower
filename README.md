@@ -4,6 +4,8 @@
 This document outlines the 
 ## Mechanical Design
 The mechanical design for our line follower is a modified version of the 
+![Uploading Untitled Diagram.drawio.png…]()
+
 ## Electrical Design
 
 ## Code Structure
