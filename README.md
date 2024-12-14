@@ -23,9 +23,9 @@ Each of the three sensors above was necessary to complete specific parts of the 
 - The IR Line Sensor allows the robot to follow the line.
 ### Wiring
 Our electrical design is fairly standard for ROMI line following robots. All of our components are plugged into a nucleo development board, which receives power from a ROMI PDB. Shown below is our wiring diagram.
+
 ![Untitled Diagram drawio](https://github.com/user-attachments/assets/a3b0814f-1b20-4740-8eae-b674b0f8a109)
 Of note, due to the number of devices used in this project, most 5V and GND connections were made on a section of perf board instead of plugging directly into the nucleo board.
-
 ## Mechanical Design
 The mechanical design for our line follower is a modified version of the standard ROMI POLULU chassis kit. The main modifications we made were 3D printed mounts for the IMU, bump sensors, and IR line sensor. All necessary CAD files are in the CAD folder in the repository.
 ### IMU Mount
@@ -36,7 +36,8 @@ In order to secure all of the necessary sensors to the front, we 3D printed a mo
 ![image](https://github.com/user-attachments/assets/72b3a93d-ac85-48df-9d0d-ee1f16bd5c0a)
 ### Overall Assembly
 Both of these mounts were screwed into the main chassis using M2.5 screws and bolts. Mutltiple pictures of our overall assembly in action can be seen below. 
-![IMG_4110](https://github.com/user-attachments/assets/24a3d4a6-d5e1-4f57-bb6a-67a0ccb37b00)![IMG_4114](https://github.com/user-attachments/assets/f7620406-b6aa-49b0-98e4-28ff58cb5f17)
+
+<img width="300" src="https://github.com/user-attachments/assets/24a3d4a6-d5e1-4f57-bb6a-67a0ccb37b00" /><img width="275" src="https://github.com/user-attachments/assets/f7620406-b6aa-49b0-98e4-28ff58cb5f17" />
 
 
 ## Code Structure
@@ -58,7 +59,6 @@ If the robot is in its line-following mode, the centroid read by the IR light se
 
 ### Heading control
 At multiple points in the line following track, the robot must move to a set angle, so closed-loop proportional heading control was selected. This closed-loop heading signal is then fed into the motor controller. In order to ensure that the robot behaves consistently, the gains for these controlled spins are set very low so that the inertia does not disrupt the following movement. 
-
 ## Calculations
 
 ## References
