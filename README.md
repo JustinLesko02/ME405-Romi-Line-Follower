@@ -43,6 +43,7 @@ Both of these mounts were screwed into the main chassis using M2.5 screws
 This section will describe the control structures that are used in the robot.
 ### Motor Control
 Each of our motors uses closed-loop proportional-integral control. 
+<img width="749" alt="Screen Shot 2024-11-21 at 9 37 00 AM" src="https://github.com/user-attachments/assets/ef799270-c59c-4ba0-b219-5e157936887b" />
 
 ## Calculations
 ## References
