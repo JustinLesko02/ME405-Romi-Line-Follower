@@ -254,6 +254,10 @@ V_L = \frac{V_{set}}{r_{wheel}*\pi}(1-(\frac{W_{track}}{2*r_{turn}}))*1440
 ```math
 V_R = \frac{V_{set}}{r_{wheel}*\pi}(1+(\frac{W_{track}}{2*r_{turn}}))*1440
 ```
+These equations are then implimented throughout the code to set the speed of the motors according the appropriate turning radius and velocity.
+### Step Responses
+Another form of analysis we performed were open-loop step responses on each motor. The results of these tests and associated graphs can be seen in the figures below. These initial tests were not used for any formal analysis, but were nice to use for developing a range of velocities that the ROMI could move. The step responses were performed and graphed using modified code from previous projects. 
+
 ## References
 
 
