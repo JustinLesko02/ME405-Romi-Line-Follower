@@ -44,7 +44,9 @@ This section will describe the control structures that are used in the robot.
 ### Motor Control
 Each of our motors uses closed-loop proportional-integral control. 
 <img width="749" alt="Screen Shot 2024-11-21 at 9 37 00 AM" src="https://github.com/user-attachments/assets/ef799270-c59c-4ba0-b219-5e157936887b" />
-
+### Line Sensing Control
+### Heading control
+At multiple points in the line following track, the robot must move to a set angle, so closed-loop heading control which fed directly into 
 ## Calculations
 ## References
 
