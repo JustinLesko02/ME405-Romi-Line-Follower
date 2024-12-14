@@ -49,11 +49,13 @@ In order to control the speed of each motor, closed-loop proportional-integral s
 This control scheme can be seen in controller.py, under the ProportionalIntegralController class. This class takes uses motor and encoder objects as attributes, calculates proportional and integral errors, and returns a saturation-checked signal for the motor PWM.
 Of note, all of the math that the class does is in encoder ticks, so target motor speeds are in units of encoder ticks per second. In addition, this causes ki and kp selected for the motors to be very small due to the high ratio of encoder ticks per revolution.
 ### Line Sensing Control
-In order to track lines, semi-closed loop control is implimented using the line-following robot.
-If the robot is in its line-following mode, its 
+In order to track lines, semi-closed loop control is implimented using the line sensor.
+If the robot is in its line-following mode, the centroid read by the IR light sensor is then used to manipulate the turning radius of the robot. For instance, if the line is in the middle of the sensor, then the centroid  will be 0, which then causes the turning radius to be 0. If the line is to the right of the sensor, then the centroid read will be positive, which will then cause the turning radius to be divided by the centroid value. Therefore, the further away from the center the line is, the smaller the turning radius is, causing the robot to correct harder if it is off course. 
+
 
 ### Heading control
-At multiple points in the line following track, the robot must move to a set angle, so closed-loop heading control was selected. This closed-loop heading signal is then fed into the motor controller. 
+At multiple points in the line following track, the robot must move to a set angle, so closed-loop proportional heading control was selected. This closed-loop heading signal is then fed into the motor controller. In order to ensure that the robot behaves consistently, the gains for these controlled spins are set very low so that the inertia does not disrupt the following movement. 
+
 ## Calculations
 
 ## References
