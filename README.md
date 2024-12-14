@@ -1,7 +1,9 @@
 # ME405 Romi Line Follower Project
 #### By Marcus Pietro and Justin Lesko
 ## Overview
-This repository contains code and auxillary files relavent to run a line following robot. 
+This repository contains code and auxillary files relavent to run a line following robot. All electrical and mechanical components as outline further on in this document are needed and proper tuning of variables is imperative for success. In order to run the code, download all of the necessary python files and run main.py. 
+### Operation
+To operate the robot, line it up at the start of the line following track and press the user input button. It will automatically run around the track and return to the start. 
 ## Table of Contents
 1. Electrical Design
 2. Mechanical Design
