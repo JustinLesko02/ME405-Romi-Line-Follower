@@ -41,6 +41,158 @@ Both of these mounts were screwed into the main chassis using M2.5 screws and bo
 
 
 ## Code Structure
+### Overview
+
+The system runs on a MicroPython-based Nucleo STM32 board and controls a Romi robot platform. Its functionality includes line following, obstacle avoidance, and returning to a home position. Each major subsystem (motors, IMU, line sensors) is encapsulated in dedicated modules and tasks, and all coordination is achieved through a cooperative scheduler and shared variables. The code translates high-level goals into specific motor commands and state transitions based on sensor inputs.
+
+### Detailed File-by-File and Inter-Task Mechanics
+
+#### main.py
+
+**Setup and Configuration:**  
+- Declares global constants for geometry and motion (e.g., `Turn_Radius`, `Velocity`, `Track_Width`, `Wheel_Radius`).
+- These values are used to compute `Set_Speed` and `Set_Turn`. For instance:
+  - `Set_Speed` converts a desired linear velocity (in inches/second) into encoder ticks/second, considering wheel radius and encoder resolution.
+  - `Set_Turn` determines how to bias the inside vs. outside wheel speed for a given turn radius.
+- Initializes multiple `Share` objects (e.g., `heading`, `motor_run_flag`, `turn_signal`, `black_line_flag`) to enable safe data exchange between tasks.
+- Configures interrupt handlers for user input and bump sensors. These interrupts directly modify shares like `motor_run_flag` or `button_ok` to signal the tasks that a new event has occurred (e.g., user pressed the start button, or robot bumped into an obstacle).
+
+**Task Creation and Scheduling:**  
+- Defines tasks as generator functions: `motor_update_A`, `motor_update_B`, `IMU_update`, `line_sensor_update`, and `print_status`.
+- Each task is appended to a global task list in `cotask.py`.
+- After initialization, `main.py` enters a loop calling `cotask.task_list.pri_sched()` repeatedly. This scheduler checks which tasks are ready to run, runs them in priority order, and ensures periodic execution.
+
+#### BNO055.py
+
+**IMU Initialization and Calibration:**  
+- Communicates with the IMU via I2C, setting the operation mode to NDOF (sensor fusion mode).
+- Attempts to load previously saved calibration data from `calibration.txt`. If not found, the code instructs the user to move the robot to achieve full calibration (all sensor statuses must reach 3). Once calibrated, the data is saved for future runs.
+
+**Data Reading:**  
+- `read_euler_angles()` and `read_velocity()` read Euler angles and gyroscopic data from specific registers.
+- Values are unpacked using `struct` and converted to meaningful units (degrees for heading, deg/s or related units for gyro).
+- The IMU task in `main.py` uses these functions to update the `heading` and `gyroZ` shares, which other tasks read.
+
+#### controller.py
+
+**Proportional and PI Controllers:**  
+- `ProportionalController` and `ProportionalIntegralController` classes encapsulate the feedback control logic.
+- Each update:
+  - Uses `ticks_us()` and `ticks_diff()` to measure elapsed time since the last update, enabling speed computation from encoder deltas.
+  - Reads the encoder’s delta counts to compute actual speed.
+  - Calculates error as `(target_speed - actual_speed)`.
+  - Applies proportional and possibly integral terms to produce a control signal (duty cycle).
+  - Clamps duty cycle to safe limits (−100 to +100) and sends it to the motor driver.
+
+**Integration with Motor Tasks:**  
+- The motor tasks create these controller objects once during initialization.
+- On each run, they set the `target_speed` dynamically based on current mode: normal circle running, obstacle avoidance maneuvers, or return-to-home sequences.
+
+#### DRV8838.py
+
+**Motor Driving:**  
+- For a given motor, sets direction pins high or low and updates PWM duty cycle via a Timer channel.
+- `enable()` and `disable()` allow the system to start and stop motors cleanly.
+
+**Motor Task Usage:**  
+- `motor_update_A` and `motor_update_B` tasks call `set_duty()` indirectly through the controller’s update method, ensuring closed-loop control drives the wheels at the correct speed and direction.
+
+#### Encoder.py
+
+**Quadrature Decoding:**  
+- Uses a hardware timer in `ENC_AB` mode to read two encoder signals.
+- Each `update()` call reads the timer’s current count, compares it to previous counts, and calculates delta (position change).
+- Overflows are handled by adjusting delta if the timer wraps around.
+
+**Speed Feedback Loop:**  
+- Motor tasks run their controller’s `update()` method, which calls `encoder.update()`.
+- The resulting delta is converted to speed (counts/second), serving as real-time feedback for the PI loop.
+
+#### linesensor.py
+
+**Reading IR Sensors:**  
+- Activates IR LEDs, then configures multiple pins as ADC inputs to read reflectance from the surface below.
+- For each sensor, the code:
+  - Drives the pin high as output, then switches to input mode.
+  - Uses `ADC(pin)` to read reflectance value.
+  - Compares the reading against a threshold.
+
+**Centroid and Black Line Detection:**  
+- After reading all sensors, the code computes a centroid value based on which sensors see dark vs. light surfaces.
+- The `turn_signal` share is set to a function of the centroid, influencing how the motor tasks adjust their wheel speeds to correct deviations.
+- If all or most sensors detect black, `black_line_flag` is set, signaling the motors to initiate return-to-home logic.
+
+#### cotask.py and task_share.py
+
+**Task Scheduling:**  
+- Task objects store the generator function, priority, period, and profiling data.
+- `pri_sched()` checks the current time and runs the highest priority task that’s ready (its period expired or a condition triggered).
+- Tasks yield after a brief execution, allowing other tasks to run and preventing blocking.
+
+**Data Sharing:**  
+- `Share` objects store single values safely. Interrupts are disabled when reading/writing shares to prevent corruption.
+- The code uses shares extensively to pass sensor data (e.g., `heading`, `gyroZ`) and state flags (`motor_run_flag`, `black_line_flag`, `button_ok`) between tasks.
+
+### Task-Level State Machines and Interactions
+
+**Motor Tasks (`motor_update_A` and `motor_update_B`):**  
+- Start in `S0_INIT` setting up hardware and controllers.
+- Move to `S1` (standby) waiting for:
+  - `calibration_flag` from the IMU to confirm the IMU is calibrated.
+  - `motor_run_flag` indicating the user started the robot.
+- When ready, enable motors and enter `S2_RUN`, using line sensor `turn_signal` to maintain a curve and `heading_error` for fine adjustments.
+- If `motor_run_flag` changes due to a bump, they transition through states like `S_BUMP_STOP`, `S_BUMP_TURN`, `S_BUMP_CIRCLE` to navigate around obstacles.
+- If `black_line_flag` indicates a special line, they switch to states like `S_BLACK_LINE`, `S_TURN_180`, `S_GO_STRAIGHT` to return home.
+
+**IMU Task (`IMU_update`):**  
+- In `S0_INIT`, sets up I2C and IMU mode.
+- `S1` calibrates or loads calibration data.
+- `S2` waits for start signal.
+- `S3_RUN` continuously reads heading, updates `heading_error`, and checks `motor_run_flag` states:
+  - If in obstacle avoidance turn mode (`S_BUMP_TURN`), it checks heading against a target angle. Once heading is within a tolerance, sets `motor_run_flag` to the next stage.
+  - If in return-to-home (`S_TURN_180`), monitors heading until aligned with the starting orientation before switching `motor_run_flag` to straight movement.
+
+**Line Sensor Task (`line_sensor_update`):**  
+- After initialization, once running, it periodically reads the line sensors.
+- Computes centroid and sets `turn_signal`.
+- If full black is detected, sets `black_line_flag`.
+
+**Print Status Task (`print_status`):**  
+- Periodically prints out diagnostic information such as current heading, gyro rates, encoder deltas, and `motor_run_flag`.
+- Helps debug timing, confirm that tasks run as expected, and that control loops behave correctly.
+
+### Additional Internal Details
+
+**Timing and Measurement:**  
+- `ticks_us()` and `ticks_diff()` from MicroPython’s timing functions measure intervals accurately.
+- The controller classes rely on these to convert encoder deltas into speeds.
+
+**Heading Wrapping:**  
+- The IMU task uses offset logic when planning turns. If a desired turn angle might wrap heading from just below 360° to just above 0° (or vice versa), offsets ensure consistent error calculations.
+
+**Shared Variable Access Patterns:**  
+- Motor tasks primarily read `heading_error`, `turn_signal`, and `motor_run_flag`.
+- IMU task writes to `heading_error` and reads `motor_run_flag`.
+- Line sensor task writes to `turn_signal` and `black_line_flag`.
+- Interrupt handlers write to `motor_run_flag` and `button_ok` when triggered.
+
+By coordinating these reads and writes, the entire robot’s operation emerges from these modular updates. Each sensor and controller runs at its own pace (period) defined in the task constructors, ensuring stable, predictable performance.
+
+### Summary of Internal Workings
+
+Each file focuses on a clear responsibility:
+- Sensor drivers read data.
+- Controllers compute duty cycles.
+- Tasks run state machines that interpret shared flags to decide what action to take next.
+
+The cooperative scheduler ensures all tasks receive CPU time. The shared variables serve as the communication backbone, enabling events like bumps or black line detection to ripple through the state machines and alter the robot’s course.
+
+In this way, the code continuously processes sensor input, updates its internal states, and directs the motors to achieve higher-level goals, all through a structured, modular, and well-documented approach.
+
+### Information flow diagram
+
+![image](https://github.com/user-attachments/assets/f6d21c75-c450-40c8-b682-94a9301b0f24)
+
 
 ## Control Structures
 This section will describe the control structures that are used in the robot.
