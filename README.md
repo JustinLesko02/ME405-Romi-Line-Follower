@@ -41,13 +41,21 @@ Both of these mounts were screwed into the main chassis using M2.5 screws
 
 ## Control Structures
 This section will describe the control structures that are used in the robot.
+### Overall
+Overall, the robot's operation is most closely linked to the chosen set point velocity and turning radius, defined at the top of **main.py**. Past implimentations of a line follower have used a velocity and yaw rate which is the manipulated by the rest of the program, but we believe that tuning a setpoint turning radius is much more intuitive than a yaw rate. Througout the code, the velocity of the robot and the turning radius is manipulated from these setpoints, so some tuning of these two values could be necessary for line following tracks or hardware different than ours.
 ### Motor Control
-Each of our motors uses closed-loop proportional-integral control. 
+In order to control the speed of each motor, closed-loop proportional-integral speed control is used . 
 <img width="749" alt="Screen Shot 2024-11-21 at 9 37 00 AM" src="https://github.com/user-attachments/assets/ef799270-c59c-4ba0-b219-5e157936887b" />
+This control scheme can be seen in controller.py, under the ProportionalIntegralController class. This class takes uses motor and encoder objects as attributes, calculates proportional and integral errors, and returns a saturation-checked signal for the motor PWM.
+Of note, all of the math that the class does is in encoder ticks, so target motor speeds are in units of encoder ticks per second. In addition, this causes ki and kp selected for the motors to be very small due to the high ratio of encoder ticks per revolution.
 ### Line Sensing Control
+In order to track lines, semi-closed loop control is implimented using the line-following robot.
+If the robot is in its line-following mode, its 
+
 ### Heading control
-At multiple points in the line following track, the robot must move to a set angle, so closed-loop heading control which fed directly into 
+At multiple points in the line following track, the robot must move to a set angle, so closed-loop heading control was selected. This closed-loop heading signal is then fed into the motor controller. 
 ## Calculations
+
 ## References
 
 
