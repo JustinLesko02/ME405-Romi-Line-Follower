@@ -245,6 +245,7 @@ If the robot is in its line-following mode, the centroid read by the IR light se
 For hardware different from ours, tuning of the gain for the centroid may be required - we were satisfied with a gain of 1, but further testing may produce different results for better line tracking.
 ### Heading control
 At multiple points in the line following track, the robot must move to a set angle, so closed-loop proportional heading control was selected. This closed-loop heading signal is then fed into the motor controller. In order to ensure that the robot behaves consistently, the gains for these controlled spins are set very low so that the inertia does not disrupt the following movement. The block diagram below shows the control flow.
+
 ![image](https://github.com/user-attachments/assets/ad2f3d47-2d5d-42f3-9eab-8a5c4cfb7456)
 Heading control is also implimented in the portion of the line track where the robot must return to the start box from the finish box in order to make sure that it moves in a straight line. 
 ## Calculations
